@@ -3,8 +3,12 @@ import './style.css'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js'
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+
 // 创建场景
 const scene = new THREE.Scene()
+scene.background = new THREE.Color(0x888888)
 // 创建相机
 const camera = new THREE.PerspectiveCamera(
   75, // 视角
@@ -17,26 +21,20 @@ const renderer = new THREE.WebGLRenderer()
 renderer.setSize(window.innerWidth, window.innerHeight)
 document.body.appendChild(renderer.domElement)
 
-//创建几何体
-const geometry = new THREE.BoxGeometry(1, 1, 1)
-//创建材质
-const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 })
-//创建网格
-const cube = new THREE.Mesh(geometry, material)
+const loader = new GLTFLoader()
+loader.load('./model/Duck.glb', (gltf) => {
+  scene.add(gltf.scene)
+})
 
-const parentMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 })
-const parentCube = new THREE.Mesh(geometry, parentMaterial)
-parentCube.add(cube)
-parentCube.position.set(-3, 0, 0)
-parentCube.scale.set(3, 3, 3)
-parentCube.rotation.x = Math.PI / 4 // 45度
-//子元素继承父元素的变换
+const dracoLoader = new DRACOLoader()
+dracoLoader.setDecoderPath('./draco/')
+loader.setDRACOLoader(dracoLoader)
+loader.load('./model/city.glb', (gltf) => {
+  scene.add(gltf.scene)
+})
 
-// cube.position.x = 2
-cube.position.set(-3, 0, 0)
-//将网格添加到场景中
-scene.add(parentCube)
-
+const light = new THREE.AmbientLight(0xffffff, 1);
+scene.add(light);
 //设置辅助轴线
 const axesHelper = new THREE.AxesHelper(5)
 scene.add(axesHelper)
@@ -49,13 +47,9 @@ camera.lookAt(0, 0, 0)
 
 // 控制器
 const controls = new OrbitControls(camera, renderer.domElement)
-// controls.autoRotate = true // 自动旋转
-// controls.enableDamping = true // 惯性
 function animate() {
   controls.update()
   requestAnimationFrame(animate)
-  // cube.rotation.x += 0.01
-  // cube.rotation.y += 0.01
 
   // 渲染
   renderer.render(scene, camera)
@@ -69,7 +63,6 @@ window.addEventListener('resize', () => {
   camera.updateProjectionMatrix()
 })
 
-const gui = new GUI()
 </script>
 
 <template>
