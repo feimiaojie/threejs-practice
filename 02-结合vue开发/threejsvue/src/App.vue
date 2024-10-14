@@ -5,6 +5,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 
 // 创建场景
 const scene = new THREE.Scene()
@@ -27,14 +28,21 @@ loader.load('./model/Duck.glb', (gltf) => {
 })
 
 const dracoLoader = new DRACOLoader()
-dracoLoader.setDecoderPath('./draco/')
+// dracoLoader.setDecoderPath('three/examples/jsm/libs/draco')
+dracoLoader.setDecoderPath('./draco')
 loader.setDRACOLoader(dracoLoader)
 loader.load('./model/city.glb', (gltf) => {
   scene.add(gltf.scene)
 })
 
-const light = new THREE.AmbientLight(0xffffff, 1);
-scene.add(light);
+//环境光
+const rgbeLoader = new RGBELoader()
+rgbeLoader.load('./texture/Alex_Hart-Nature_Lab_Bones_2k.hdr', envMap => {
+  envMap.mapping = THREE.EquirectangularReflectionMapping
+  scene.environment = envMap
+})
+// const light = new THREE.AmbientLight(0x0fffff, 1);
+// scene.add(light);
 //设置辅助轴线
 const axesHelper = new THREE.AxesHelper(5)
 scene.add(axesHelper)
