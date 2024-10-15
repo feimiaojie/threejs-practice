@@ -28,8 +28,7 @@ loader.load('./model/Duck.glb', (gltf) => {
 })
 
 const dracoLoader = new DRACOLoader()
-// dracoLoader.setDecoderPath('three/examples/jsm/libs/draco')
-dracoLoader.setDecoderPath('./draco')
+dracoLoader.setDecoderPath('./draco/')
 loader.setDRACOLoader(dracoLoader)
 loader.load('./model/city.glb', (gltf) => {
   scene.add(gltf.scene)
