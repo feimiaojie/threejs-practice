@@ -1,7 +1,6 @@
 <script setup>
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 import './style.css';
 // 创建场景
 const scene = new THREE.Scene()
@@ -19,22 +18,38 @@ document.body.appendChild(renderer.domElement)
 
 // 创建平面
 const planeGeometry = new THREE.PlaneGeometry(1,1)
-// planeGeometry.translate(2, 2, 0)
-planeGeometry.rotateX(Math.PI / 2)
-planeGeometry.scale(3,3,3)
 const nvTexture = new THREE.TextureLoader().load('./texture/uv_grid_opengl.jpg')
 console.log(nvTexture,'nv')
-const planeMaterial = new THREE.MeshBasicMaterial({ map: nvTexture, side: THREE.DoubleSide})
-const planeCube = new THREE.Mesh(planeGeometry, planeMaterial)
+const planeMaterial = new THREE.MeshBasicMaterial({ map: nvTexture})
+const planeCube = new THREE.Mesh(planeGeometry,planeMaterial)
 planeCube.position.set(2, 0.5,0)
 scene.add(planeCube)
 console.log(planeGeometry)
+//创建几何体
+const geometry = new THREE.BufferGeometry()
+const vertices = new Float32Array([
+  // x y z
+  0, 0, 0, // 顶点1坐标
+  1, 0, 0, // 顶点2坐标
+  1, 1, 0, // 顶点3坐标
+
+  0, 0, 0,
+  1, 1, 0,
+  0, 1, 0
+])
+// 红色的是x，绿色的是y，蓝色的是z
+geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3))
+console.log(geometry) // 6个点
 
 //创建材质
 const material = new THREE.MeshBasicMaterial({ map: nvTexture })
+//创建网格
+const cube = new THREE.Mesh(geometry, material)
+// scene.add(cube)
+
+cube.position.set(0, 0, 0)
 
 const indexGeometry = new THREE.BufferGeometry()
-
 const indexVertices = new Float32Array([
   0, 0, 0, // 顶点1坐标
   1, 0, 0, // 顶点2坐标
@@ -45,27 +60,14 @@ const indexVertices = new Float32Array([
 ])
 indexGeometry.setAttribute('position', new THREE.BufferAttribute(indexVertices, 3))
 console.log(indexGeometry) // 4个点
-indexGeometry.scale(2,2,2)
 const indices = new Uint16Array([0, 1, 2, 0, 2, 3])
 indexGeometry.setIndex(new THREE.BufferAttribute(indices, 1))
 
 const indexUv = new Float32Array([0,0, 1,0,1,1,0,1])
 indexGeometry.setAttribute('uv', new THREE.BufferAttribute(indexUv, 2))
-// indexGeometry.computeVertexNormals()
-const normals = new Float32Array([0,0,1,0,0,1,0,0,1,0,0,1])
-indexGeometry.setAttribute('normal', new THREE.BufferAttribute(normals,3))
 const indexCube = new THREE.Mesh(indexGeometry, material)
+indexGeometry.computeVertexNormals()
 scene.add(indexCube)
-
-const rgbeLoader = new RGBELoader()
-rgbeLoader.load('./texture/Alex_Hart-Nature_Lab_Bones_2k.hdr', (envMap)=>{
-  envMap.mapping = THREE.EquirectangularReflectionMapping
-  scene.background = envMap
-  scene.environment = envMap
-  material.envMap = envMap
-  planeMaterial.envMap = envMap
-
-})
 
 //设置辅助轴线
 const axesHelper = new THREE.AxesHelper(5)
@@ -95,6 +97,16 @@ window.addEventListener('resize', () => {
   camera.updateProjectionMatrix()
 })
 
+const eventObject = {
+  FullScreen: function () {
+    document.documentElement.requestFullscreen()
+    console.log('FullScreen')
+  },
+  ExitFullScreen: function () {
+    document.exitFullscreen()
+    console.log('ExitFullScreen')
+  }
+}
 </script>
 
 <template>
