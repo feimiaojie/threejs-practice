@@ -1,8 +1,13 @@
 <script setup>
-import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
-import './style.css';
+import * as THREE from 'three'
+import gsap from 'gsap'
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js'
+import { RGBELoader } from 'three/addons/loaders/RGBELoader.js'
+// import { Water } from 'three/addons/objects/Water'
+import { Water } from "three/examples/jsm/objects/Water2";
+
 // 创建场景
 const scene = new THREE.Scene()
 // 创建相机
@@ -12,73 +17,67 @@ const camera = new THREE.PerspectiveCamera(
   0.1, //近平面
   1000 // 远平面
 )
-// 创建渲染器
-const renderer = new THREE.WebGLRenderer()
-renderer.setSize(window.innerWidth, window.innerHeight)
-document.body.appendChild(renderer.domElement)
-
-// 创建平面
-const planeGeometry = new THREE.PlaneGeometry(1,1)
-// planeGeometry.translate(2, 2, 0)
-planeGeometry.rotateX(Math.PI / 2)
-planeGeometry.scale(3,3,3)
-const nvTexture = new THREE.TextureLoader().load('./texture/uv_grid_opengl.jpg')
-console.log(nvTexture,'nv')
-const planeMaterial = new THREE.MeshBasicMaterial({ map: nvTexture, side: THREE.DoubleSide})
-const planeCube = new THREE.Mesh(planeGeometry, planeMaterial)
-planeCube.position.set(2, 0.5,0)
-scene.add(planeCube)
-console.log(planeGeometry)
-
-//创建材质
-const material = new THREE.MeshBasicMaterial({ map: nvTexture })
-
-const indexGeometry = new THREE.BufferGeometry()
-
-const indexVertices = new Float32Array([
-  0, 0, 0, // 顶点1坐标
-  1, 0, 0, // 顶点2坐标
-  1, 1, 0, // 顶点3坐标
-  // 0, 0, 0,
-  // 1, 1, 0,
-  0, 1, 0
-])
-indexGeometry.setAttribute('position', new THREE.BufferAttribute(indexVertices, 3))
-console.log(indexGeometry) // 4个点
-indexGeometry.scale(2,2,2)
-const indices = new Uint16Array([0, 1, 2, 0, 2, 3])
-indexGeometry.setIndex(new THREE.BufferAttribute(indices, 1))
-
-const indexUv = new Float32Array([0,0, 1,0,1,1,0,1])
-indexGeometry.setAttribute('uv', new THREE.BufferAttribute(indexUv, 2))
-// indexGeometry.computeVertexNormals()
-const normals = new Float32Array([0,0,1,0,0,1,0,0,1,0,0,1])
-indexGeometry.setAttribute('normal', new THREE.BufferAttribute(normals,3))
-const indexCube = new THREE.Mesh(indexGeometry, material)
-scene.add(indexCube)
-
-const rgbeLoader = new RGBELoader()
-rgbeLoader.load('./texture/Alex_Hart-Nature_Lab_Bones_2k.hdr', (envMap)=>{
-  envMap.mapping = THREE.EquirectangularReflectionMapping
-  scene.background = envMap
-  scene.environment = envMap
-  material.envMap = envMap
-  planeMaterial.envMap = envMap
-
-})
-
-//设置辅助轴线
-const axesHelper = new THREE.AxesHelper(5)
-scene.add(axesHelper)
 
 // 设置相机位置
-camera.position.z = 2
-camera.position.x = 4
-camera.position.y = 2
+camera.position.set(-3.23, 2.98, 4.06)
+camera.updateProjectionMatrix()
 camera.lookAt(0, 0, 0)
+
+// 创建渲染器
+const renderer = new THREE.WebGLRenderer({
+  antialias: true, // 开启抗锯齿
+})
+renderer.setSize(window.innerWidth, window.innerHeight)
+document.body.appendChild(renderer.domElement)
+renderer.toneMapping = THREE.ACESFilmicToneMapping
+renderer.toneMappingExposure = 0.5
 
 // 控制器
 const controls = new OrbitControls(camera, renderer.domElement)
+controls.enableDamping = true // 阻尼
+
+// 初始化loader
+const dracoLoader = new DRACOLoader()
+dracoLoader.setDecoderPath('./draco/')
+const glftLoader = new GLTFLoader()
+glftLoader.setDRACOLoader(dracoLoader)
+
+// 加载环境纹理
+const rbgeLoader = new RGBELoader()
+rbgeLoader.load('./texture/sky.hdr', (texture) => {
+  texture.mapping = THREE.EquirectangularReflectionMapping
+  scene.background = texture
+  scene.environment = texture
+})
+
+//加载模型
+glftLoader.load('./model/scene.glb', function (gltf) {
+  const model = gltf.scene
+  model.traverse((child) => {
+    if (child.name === 'Plane') {
+      child.visible = false
+    }
+  })
+  scene.add(model)
+})
+
+// 创建水面
+const waterGeometry = new THREE.CircleGeometry(300, 32);
+const water = new Water(waterGeometry, {
+  textureWidth: 1024,
+  textureHeight: 1024,
+  color: 0xeeeeff,
+  flowDirection: new THREE.Vector2(1, 1),
+  scale: 100,
+});
+water.rotation.x = -Math.PI / 2
+scene.add(water)
+
+// 添加平行光
+const light = new THREE.DirectionalLight(0xffffff, 1)
+light.position.set(0, 50, 0)
+scene.add(light)
+
 function animate() {
   controls.update()
   requestAnimationFrame(animate)
@@ -87,14 +86,6 @@ function animate() {
   renderer.render(scene, camera)
 }
 animate()
-
-window.addEventListener('resize', () => {
-  console.log('resize')
-  renderer.setSize(window.innerWidth, window.innerHeight)
-  camera.aspect = window.innerWidth / window.innerHeight
-  camera.updateProjectionMatrix()
-})
-
 </script>
 
 <template>
