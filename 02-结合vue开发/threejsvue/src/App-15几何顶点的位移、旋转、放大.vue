@@ -22,7 +22,7 @@ const planeGeometry = new THREE.PlaneGeometry(1,1)
 // planeGeometry.translate(2, 2, 0)
 planeGeometry.rotateX(Math.PI / 2)
 planeGeometry.scale(3,3,3)
-const nvTexture = new THREE.TextureLoader().load('./texture/uv_grid_opengl.jpg')
+const nvTexture = new THREE.TextureLoader().load('./textures/uv_grid_opengl.jpg')
 console.log(nvTexture,'nv')
 const planeMaterial = new THREE.MeshBasicMaterial({ map: nvTexture, side: THREE.DoubleSide})
 const planeCube = new THREE.Mesh(planeGeometry, planeMaterial)
@@ -58,7 +58,7 @@ const indexCube = new THREE.Mesh(indexGeometry, material)
 scene.add(indexCube)
 
 const rgbeLoader = new RGBELoader()
-rgbeLoader.load('./texture/Alex_Hart-Nature_Lab_Bones_2k.hdr', (envMap)=>{
+rgbeLoader.load('./textures/Alex_Hart-Nature_Lab_Bones_2k.hdr', (envMap)=>{
   envMap.mapping = THREE.EquirectangularReflectionMapping
   scene.background = envMap
   scene.environment = envMap

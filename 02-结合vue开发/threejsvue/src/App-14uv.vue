@@ -18,7 +18,7 @@ document.body.appendChild(renderer.domElement)
 
 // 创建平面
 const planeGeometry = new THREE.PlaneGeometry(1,1)
-const nvTexture = new THREE.TextureLoader().load('./texture/uv_grid_opengl.jpg')
+const nvTexture = new THREE.TextureLoader().load('./textures/uv_grid_opengl.jpg')
 console.log(nvTexture,'nv')
 const planeMaterial = new THREE.MeshBasicMaterial({ map: nvTexture})
 const planeCube = new THREE.Mesh(planeGeometry,planeMaterial)

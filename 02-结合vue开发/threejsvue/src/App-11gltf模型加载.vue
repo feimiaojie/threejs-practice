@@ -36,7 +36,7 @@ loader.load('./model/city.glb', (gltf) => {
 
 //环境光
 const rgbeLoader = new RGBELoader()
-rgbeLoader.load('./texture/Alex_Hart-Nature_Lab_Bones_2k.hdr', envMap => {
+rgbeLoader.load('./textures/Alex_Hart-Nature_Lab_Bones_2k.hdr', envMap => {
   envMap.mapping = THREE.EquirectangularReflectionMapping
   scene.environment = envMap
 })
