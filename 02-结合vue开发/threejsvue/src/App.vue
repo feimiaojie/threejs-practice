@@ -7,6 +7,9 @@ import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js'
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js'
 import { Water } from 'three/examples/jsm/objects/Water2'
 import { ref } from 'vue'
+import { GUI } from 'three/addons/libs/lil-gui.module.min.js'
+
+const gui = new GUI()
 // 创建场景
 const scene = new THREE.Scene()
 // 创建相机
@@ -92,7 +95,13 @@ const pointLight = new THREE.PointLight(0xffffff, 50)
 pointLight.position.set(0.1, 2.4, 0)
 pointLight.castShadow = true
 scene.add(pointLight)
-
+const folder1 = gui.addFolder('pointerLight')
+  folder1.add(pointLight.position, 'x', -600, 600)
+  folder1.add(pointLight.position, 'y', -600, 600)
+  folder1.add(pointLight.position, 'z', -600, 600)
+  
+  const pointLightHelper = new THREE.PointLightHelper(pointLight, 1)
+  scene.add(pointLightHelper)
 //创建点光源组
 const pointLightGroup = new THREE.Group()
 pointLightGroup.position.set(-8, 2.5, -1.5)
