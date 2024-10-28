@@ -42,7 +42,7 @@ controls.enableDamping = true // 阻尼
 // scene.add(light1);
 
 //Create a PointLight and turn on shadows for the light
-const light = new THREE.PointLight( 0xffffff, 1, 100 );
+const light = new THREE.PointLight( 0xffffff, 20, 100,1 );
 light.position.set( 0, 10, 4 );
 light.castShadow = true; // default false
 scene.add( light );
